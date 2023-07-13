@@ -177,7 +177,6 @@ namespace QueryFunctionalitySamples
             Console.WriteLine("Showing GROUP BY multiple properties.");
             Console.WriteLine($"-----------------------------------------------------------");
 
-            //var groupByText = "SELECT Count(1) as NewProduts, c.Category, DateTimeBin(c.FirstAvailable,'d', 30, \"2021-01-01T00:00:00.0000000Z\") AS DayAvailable \n\t\tFROM c \n\t\tWHERE c.FirstAvailable > \"2021-01-01T00:00:00.0000000Z\" \n\t\tGROUP BY c.Category, DateTimeBin(c.FirstAvailable,'d',30, \"2021-01-01T00:00:00.0000000Z\")";
             var groupByText = "SELECT Count(1) as NewProduts, c.Category, DateTimeBin(c.FirstAvailable,'d', 30, \"2022-01-01T00:00:00.0000000Z\") \n\t\tFROM c \n\t\tWHERE c.FirstAvailable > \"2022-01-01T00:00:00.0000000Z\" \n\t\tGROUP BY c.Category, DateTimeBin(c.FirstAvailable,'d', 30, \"2022-01-01T00:00:00.0000000Z\")";
 
             var statsWithout = await runnerWithout.RunQueryAsync(groupByText);
@@ -191,13 +190,19 @@ namespace QueryFunctionalitySamples
             Console.WriteLine("Showing query improvements by using computed properties.");
             Console.WriteLine($"-----------------------------------------------------------");
 
-            var withoutComputedPropsText = "SELECT c.Name, r.Stars as Rating \n\t\tFROM c \n\t\tJOIN r IN c.CustomerRatings \n\t\tWHERE c.Category = \"Tools\" and CONTAINS(c.Name, \"Incredible\")";
-            var withComputedPropsText = "SELECT c.Name, r.Stars as Rating \n\t\tFROM c \n\t\tJOIN r IN c.CustomerRatings \n\t\tWHERE c.Category = \"Tools\" and c.cp_NameContainsIncredible";
+            var withoutComputedPropsText = "SELECT c.Name FROM c \n\t\tWHERE c.Category = \"Garden\" and CONTAINS(c.Name, \"Incredible\")";
+            var withComputedPropsText = "SELECT c.Name FROM c \n\t\tWHERE c.Category = \"Garden\" and c.cp_NameContainsIncredible";
 
             var statsWithout = await runner.RunQueryAsync(withoutComputedPropsText);
             var statsWith = await runner.RunQueryAsync(withComputedPropsText);
 
             PrintComparisonOutput(statsWith, statsWithout);
+
+            var withComputedPropsText2 = "SELECT TOP 1000 c.Name FROM c \n\t\tORDER BY c.cp_LowerName";
+
+            var statsWith2 = await runner.RunQueryAsync(withComputedPropsText2);
+
+            PrintComparisonOutput(statsWith2, null, withComputedPropsText2);
         }
 
         public static async Task RunExistsDemo(QueryRunner runner)
@@ -212,14 +217,6 @@ namespace QueryFunctionalitySamples
             var statsWith2 = await runner.RunQueryAsync(existsText2);
 
             PrintComparisonOutput(statsWith2, statsWithout2);
-
-            //var joinText3 = "SELECT COUNT(1) as FourPlusStarProductsFromCaroline \n\t\tFROM c \n\t\tJOIN r IN c.CustomerRatings \n\t\tWHERE r.Stars > 4 and r.UserName = \"Caroline80\"";
-            //var existsText3 = "SELECT COUNT(1) as FourPlusStarProductsFromCaroline \n\t\tFROM c \n\t\tWHERE EXISTS(SELECT VALUE 1 FROM rating IN c.CustomerRatings WHERE rating.Stars > 4 and rating.UserName = \"Caroline80\")";
-
-            //var statsWithout3 = await runner.RunQueryAsync(joinText3);
-            //var statsWith3 = await runner.RunQueryAsync(existsText3);
-
-            //PrintComparisonOutput(statsWith3, statsWithout3);
         }
 
         public static async Task RunUDFDemo(QueryRunner runner)

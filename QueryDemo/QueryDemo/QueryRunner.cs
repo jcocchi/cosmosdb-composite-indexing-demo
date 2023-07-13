@@ -86,11 +86,17 @@ namespace QueryFunctionalitySamples
                 {
                     Name = "cp_NameContainsIncredible",
                     Query = "SELECT VALUE CONTAINS(c.Name, \"Incredible\") FROM c"
+                },
+                new ComputedProperty
+                {
+                    Name = "cp_LowerName",
+                    Query = "SELECT VALUE LOWER(c.Name) FROM c"
                 }
             };
 
             // Add the computed property to the indexing policy
             containerProperties.Resource.IndexingPolicy.IncludedPaths.Add(new IncludedPath() { Path = "/cp_NameContainsIncredible/?" });
+            containerProperties.Resource.IndexingPolicy.IncludedPaths.Add(new IncludedPath() { Path = "/cp_LowerName/?" });
 
             // Add all composite indexes to the indexing policy
             containerProperties.Resource.IndexingPolicy.CompositeIndexes
